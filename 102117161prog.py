@@ -4,8 +4,24 @@ import zipfile
 import os
 import smtplib
 from email.message import EmailMessage
+import socket
 
-app = Flask(__name__)    
+app = Flask(__name__)
+
+def check_open_ports():
+    # Define the host and ports to check
+    host = 'localhost'
+    ports = [80, 443]  # HTTP and HTTPS ports
+    
+    open_ports = []
+    for port in ports:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        result = sock.connect_ex((host, port))
+        if result == 0:
+            open_ports.append(port)
+        sock.close()
+    
+    return open_ports
 
 @app.route('/')
 def index():
@@ -19,6 +35,11 @@ def process():
         duration_to_cut = int(request.form['duration_to_cut'])
         email = request.form['email']
 
+        # Check for open HTTP ports
+        open_ports = check_open_ports()
+        if 80 not in open_ports:
+            return 'Error: HTTP port (80) is not open'
+        
         # Call your command line program with provided parameters using Popen
         process = subprocess.Popen(['python', '102117161.py', singer_name, str(num_videos), str(duration_to_cut), 'output.mp3'])
         process.wait()  # Wait for the process to finish
