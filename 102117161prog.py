@@ -4,8 +4,28 @@ import zipfile
 import os
 import smtplib
 from email.message import EmailMessage
+import socket
 
-app = Flask(__name__)    
+app = Flask(__name__)
+
+def is_port_open(port):
+    # Create a socket object
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # Set a timeout in case the connection attempt takes too long
+    s.settimeout(2)
+    try:
+        # Attempt to connect to the given port
+        s.connect(('localhost', port))
+        # If the connection succeeds, the port is open
+        s.close()
+        return True
+    except socket.error:
+        # If the connection fails, the port is closed
+        return False
+
+def check_http_ports():
+    # Check if port 80 (HTTP) and port 443 (HTTPS) are open
+    return is_port_open(80), is_port_open(443)
 
 @app.route('/')
 def index():
@@ -14,6 +34,11 @@ def index():
 @app.route('/process', methods=['POST'])
 def process():
     if request.method == 'POST':
+        # Check if HTTP ports are open
+        port_80_open, port_443_open = check_http_ports()
+        if not port_80_open:
+            return 'Error: HTTP port (80) is not open'
+        
         singer_name = request.form['singer_name']
         num_videos = int(request.form['num_videos'])
         duration_to_cut = int(request.form['duration_to_cut'])
