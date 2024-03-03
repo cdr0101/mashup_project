@@ -3,9 +3,25 @@ import subprocess
 import zipfile
 import os
 import smtplib
+import urllib.request
+import urllib.error
+import time
 from email.message import EmailMessage
 
 app = Flask(__name__)
+
+def download_video(url, num_retries=3):
+    for attempt in range(num_retries):
+        try:
+            # Attempt to download the video
+            response = urllib.request.urlopen(url)
+            video_data = response.read()
+            return video_data
+        except urllib.error.IncompleteRead as e:
+            # Retry the download if an incomplete read occurs
+            print(f"IncompleteRead error: {e}. Retrying...")
+            time.sleep(1)  # Add a short delay before retrying
+    raise Exception("Failed to download video after multiple attempts")
 
 @app.route('/')
 def index():
