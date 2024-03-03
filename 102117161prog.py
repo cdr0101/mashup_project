@@ -21,11 +21,11 @@ def process():
 
         # Call your command line program with provided parameters using Popen
         process = subprocess.Popen(['python', '102117161.py', singer_name, str(num_videos), str(duration_to_cut), 'output.mp3'])
-        process.wait()  # Wait for the process to finish
+        return_code = process.wait()  # Wait for the process to finish
 
-        # Check if output file exists
-        if not os.path.exists('output.mp3'):
-            return 'Error: Output file not generated'
+        # Check if the command line program executed successfully and output file was generated
+        if return_code != 0 or not os.path.exists('output.mp3'):
+            return 'Error: Failed to generate output file'
 
         # Compress output file into a zip
         zip_file = f'{singer_name}_videos.zip'
@@ -44,15 +44,20 @@ def process():
             file_name = f.name
         msg.add_attachment(file_data, maintype='application', subtype='zip', filename=file_name)
 
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-            smtp.login('chelsichopra04@gmail.com', 'qqcc gsiy gsqg tmie')  
-            smtp.send_message(msg)
+        try:
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+                smtp.login('chelsichopra04@gmail.com', 'qqcc gsiy gsqg tmie')  
+                smtp.send_message(msg)
+        except Exception as e:
+            return f'Error: Failed to send email - {str(e)}'
 
-        os.remove(zip_file)  # Delete the zip file after sending
-        os.remove('output.mp3')  # Delete the output file after sending
+        finally:
+            os.remove(zip_file)  # Delete the zip file after sending
+            os.remove('output.mp3')  # Delete the output file after sending
+
         return redirect('/')
     else:
         return redirect('/')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',port=80)
+    app.run(host='0.0.0.0', port=80)
