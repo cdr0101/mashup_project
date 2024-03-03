@@ -1,3 +1,16 @@
+from flask import Flask, render_template, request, redirect
+import subprocess
+import zipfile
+import os
+import smtplib
+from email.message import EmailMessage
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
 @app.route('/process', methods=['POST'])
 def process():
     if request.method == 'POST':
@@ -51,3 +64,6 @@ def process():
         return redirect('/')
     else:
         return redirect('/')
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=80)
