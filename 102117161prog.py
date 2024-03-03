@@ -1,32 +1,3 @@
-from flask import Flask, render_template, request, redirect
-import subprocess
-import zipfile
-import os
-import smtplib
-import urllib.request
-import urllib.error
-import time
-from email.message import EmailMessage
-
-app = Flask(__name__)
-
-def download_video(url, num_retries=3):
-    for attempt in range(num_retries):
-        try:
-            # Attempt to download the video
-            response = urllib.request.urlopen(url)
-            video_data = response.read()
-            return video_data
-        except urllib.error.IncompleteRead as e:
-            # Retry the download if an incomplete read occurs
-            print(f"IncompleteRead error: {e}. Retrying...")
-            time.sleep(1)  # Add a short delay before retrying
-    raise Exception("Failed to download video after multiple attempts")
-
-@app.route('/')
-def index():
-    return render_template('index.html')
-
 @app.route('/process', methods=['POST'])
 def process():
     if request.method == 'POST':
@@ -68,6 +39,7 @@ def process():
                 smtp.send_message(msg)
 
         except Exception as e:
+            print(f'Error during processing: {str(e)}')  # Log the error
             return f'Error: {str(e)}'
 
         finally:
@@ -79,6 +51,3 @@ def process():
         return redirect('/')
     else:
         return redirect('/')
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=80)
