@@ -19,6 +19,8 @@ def process():
         duration_to_cut = int(request.form['duration_to_cut'])
         email = request.form['email']
 
+        zip_file = ''  # Default value for zip_file
+
         try:
             # Call your command line program with provided parameters using Popen
             process = subprocess.Popen(['python', '102117161.py', singer_name, str(num_videos), str(duration_to_cut), 'output.mp3'])
