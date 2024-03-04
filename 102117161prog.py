@@ -7,6 +7,14 @@ from email.message import EmailMessage
 
 app = Flask(__name__)
 
+# Function to check if ffmpeg is installed
+def is_ffmpeg_installed():
+    try:
+        subprocess.run(['ffmpeg', '-version'], capture_output=True, check=True)
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -14,6 +22,10 @@ def index():
 @app.route('/process', methods=['POST'])
 def process():
     if request.method == 'POST':
+        # Check if ffmpeg is installed
+        if not is_ffmpeg_installed():
+            return 'Error: ffmpeg is not installed or not accessible'
+
         singer_name = request.form['singer_name']
         num_videos = int(request.form['num_videos'])
         duration_to_cut = int(request.form['duration_to_cut'])
