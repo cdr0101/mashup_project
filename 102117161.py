@@ -4,7 +4,7 @@ import subprocess
 from pytube import YouTube
 from pydub import AudioSegment
 from youtubesearchpython import VideosSearch
-
+os.environ["IMAGEIO_FFMPEG_EXE"] = "ffmpeg"
 def search_youtube_videos(singer_name, num_videos):
     print("Searching YouTube for video URLs...")
     videosSearch = VideosSearch(singer_name, limit=num_videos)
