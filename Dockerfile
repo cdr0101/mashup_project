@@ -1,22 +1,20 @@
-# Use the official Python image as the base image
-FROM python:3.9
-
-# Install ffmpeg
-RUN apt-get update && \
-    apt-get install -y ffmpeg && \
-    rm -rf /var/lib/apt/lists/*
+# Use an official Python runtime as a parent image
+FROM python:3.8-slim
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the dependencies file to the working directory
-COPY requirements.txt .
+# Copy the application code into the container
+COPY . .
 
-# Install any dependencies
+# Install FFmpeg
+RUN apt-get update && apt-get install -y ffmpeg
+
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the content of the local src directory to the working directory
-COPY mashup_project/. .
+# Expose the port on which the Flask app will run
+EXPOSE 80
 
-# Specify the command to run on container start
-CMD ["python", "102117161prog.py"]
+# Run the Flask application using Gunicorn
+CMD ["gunicorn", "-b", "0.0.0.0:80", "102117161prog:app"]
