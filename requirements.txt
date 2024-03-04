@@ -2,5 +2,5 @@ flask
 pydub
 pytube
 youtube-search-python
-ffmpeg
+ffmpeg-python
 Gunicorn
